@@ -21,32 +21,36 @@ COLOR = 1
 SPECULAR_EXP = 4
 
 def vectAdd(v0, v1):
-    v0[0] += v1[0]
-    v0[1] += v1[1]
-    v0[2] += v1[2]
+    return [v0[0] + v1[0],
+            v0[1] + v1[1],
+            v0[2] + v1[2]]
 
 def cashjohnny(g):
-    return sum([hash(g[i] * [2, 3, 5][i]) for i in range(len(g))])
+    return sum([hash(g[i] * [2, 3, 5][i]) for i in range(3)])
 
 def vertexnormal(polygons):
     i = 0
     faces=dict()
     while i<len(polygons):
-        n=calculate_normal(polygons,i)
-        if cashjohnny(polygons[i]) in faces:
-            vectAdd(faces[cashjohnny(polygons[i])],n)
-        else:
-            faces[cashjohnny(polygons[i])]=n[:]
+        n = calculate_normal(polygons,i)
+        cj0 = cashjohnny(polygons[i])
+        cj1 = cashjohnny(polygons[i+1])
+        cj2 = cashjohnny(polygons[i+2])
 
-        if cashjohnny(polygons[i+1]) in faces:
-            vectAdd(cashjohnny(polygons[i+1]),n)
+        if cj0 in faces:
+            faces[cj0] = vectAdd(faces[cj0],n)
         else:
-            faces[cashjohnny(polygons[i+1])]=n[:]
+            faces[cj0] = n[:]
 
-        if cashjohnny(polygons[i+2]) in faces:
-            vectAdd(cashjohnny(polygons[i+2]),n)
+        if cj1 in faces:
+            faces[cj1] = vectAdd(faces[cj1],n)
         else:
-            faces[cashjohnny(polygons[i+2])]=n[:]
+            faces[cj1] = n[:]
+
+        if cj2 in faces:
+            faces[cj2] = vectAdd(faces[cj2],n)
+        else:
+            faces[cj2] = n[:]
         i+=3
 
     for key in faces:
