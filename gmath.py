@@ -20,6 +20,41 @@ LOCATION = 0
 COLOR = 1
 SPECULAR_EXP = 4
 
+def vectAdd(v0, v1):
+    v0[0] += v1[0]
+    v0[1] += v1[1]
+    v0[2] += v1[2]
+
+def cashjohnny(g):
+    return sum([hash(g[i] * [2, 3, 5][i]) for i in range(len(g))])
+
+def vertexnormal(polygons):
+    i = 0
+    faces=dict()
+    while i<len(polygons):
+        n=calculate_normal(polygons,i)
+        if cashjohnny(polygons[i]) in faces:
+            vectAdd(faces[cashjohnny(polygons[i])],n)
+        else:
+            faces[cashjohnny(polygons[i])]=n[:]
+
+        if cashjohnny(polygons[i+1]) in faces:
+            vectAdd(cashjohnny(polygons[i+1]),n)
+        else:
+            faces[cashjohnny(polygons[i+1])]=n[:]
+
+        if cashjohnny(polygons[i+2]) in faces:
+            vectAdd(cashjohnny(polygons[i+2]),n)
+        else:
+            faces[cashjohnny(polygons[i+2])]=n[:]
+        i+=3
+
+    for key in faces:
+        faces[key] = normalize(faces[key])
+
+    return faces
+
+
 #lighting functions
 def get_lighting(normal, view, ambient, light, symbols, reflect ):
 

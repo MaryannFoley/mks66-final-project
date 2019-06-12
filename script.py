@@ -133,7 +133,6 @@ def run(filename):
     (name, num_frames) = first_pass(commands)
     frames = second_pass(commands, num_frames)
 
-
     i = 0
 
     for frame in frames:
