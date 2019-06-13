@@ -82,7 +82,7 @@ def gouraud(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
 
                 #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
 
-                draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, color0, color1)
+                draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color0, color1)
                 color0 = [color0[w] + cdiff0[w] for w in range(3)]
                 color1 = [color1[w] + cdiff1[w] for w in range(3)]
 
@@ -95,13 +95,10 @@ def gouraud(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
         i += 3
 
 def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color0, color1):
+
     if x0 > x1:
-        tx = x0
-        tz = z0
-        x0 = x1
-        z0 = z1
-        x1 = tx
-        z1 = tz
+        draw_scanline_gouraud(x1, z1, x0, z0, y, screen, zbuffer, color1, color0)
+        return
 
     x = x0
     z = z0
@@ -113,8 +110,11 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color0, color1):
         for i in range(3):
             if color0[i]>255:
                 color0[i]=255
-        color0=[int(color0[i]) for i in range(3)]
-        plot(screen, zbuffer, color0, x, y, z)
+            if color0[i]<0:
+                color0[i] = 0
+
+        color =[int(ind) for ind in color0]
+        plot(screen, zbuffer, color, int(x), int(y), z)
         color0 = [color0[w] + cdiff[w] for w in range(3)]
         x+= 1
         z+= delta_z
@@ -144,7 +144,7 @@ def phong(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
                    (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
 
 
-            points.sort(key = lambda x: x[1])
+            points.sort(key = lambda x: (x[1], x[0]))
 
             x0 = points[BOT][0]
             z0 = points[BOT][2]
@@ -159,7 +159,7 @@ def phong(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
             normal0 = normals[cashjohnny(points[0])][:]
             normal1 = normals[cashjohnny(points[1])][:]
             normal2 = normals[cashjohnny(points[2])][:]
-            
+
             n0=normal0[:]
             n1=normal0[:]
             # bingus=2
@@ -175,6 +175,7 @@ def phong(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
             vdiff0 = [((normal2[w]-normal0[w])/ distance0 if distance0 != 0 else 0) for w in range(3)]
             vdiff1 = [((normal1[w]-normal0[w])/ distance1 if distance1 != 0 else 0) for w in range(3)]
             vdiff2 = [((normal2[w]-normal1[w])/ distance2 if distance2 != 0 else 0) for w in range(3)]
+
             dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
             dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
             dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
@@ -207,13 +208,17 @@ def phong(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
         i += 3
 
 def draw_scanline_phong(x0, z0, x1, z1, y, screen, zbuffer, n0, n1, view, ambient, light, symbols, reflect):
-    if x0 > x1:
-        tx = x0
-        tz = z0
-        x0 = x1
-        z0 = z1
-        x1 = tx
-        z1 = tz
+    if(x0 > x1):
+        draw_scanline_phong(x1, z1, x0, z0, y, screen, zbuffer, n1, n0, view, ambient, light, symbols, reflect)
+        return
+
+    # if x0 > x1:
+    #     tx = x0
+    #     tz = z0
+    #     x0 = x1
+    #     z0 = z1
+    #     x1 = tx
+    #     z1 = tz
 
     x = x0
     z = z0
