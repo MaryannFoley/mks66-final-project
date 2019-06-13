@@ -16,70 +16,81 @@ def gouraud(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
     i = 0
     normals = vertexnormal(polygons)
     while i < len(polygons):
+        normal = calculate_normal(polygons, i)[:]
 
-        flip = False
+        #print normal
+        if normal[2] > 0:
+            flip = False
 
-        points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
-               (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
-               (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
-
-
-        points.sort(key = lambda x: x[1])
-
-        x0 = points[BOT][0]
-        z0 = points[BOT][2]
-        x1 = points[BOT][0]
-        z1 = points[BOT][2]
-        y = int(points[BOT][1])
-
-        distance0 = int(points[TOP][1]) - y * 1.0 + 1
-        distance1 = int(points[MID][1]) - y * 1.0 + 1
-        distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
-
-        normal0 = normals[cashjohnny(points[0])]
-        normal1 = normals[cashjohnny(points[1])]
-        normal2 = normals[cashjohnny(points[2])]
-
-        print(normals)
-        
-        rgb0 = get_lighting(normal0, view, ambient, light, symbols, reflect )
-        rgb1 = get_lighting(normal1, view, ambient, light, symbols, reflect )
-        rgb2 = get_lighting(normal2, view, ambient, light, symbols, reflect )
-
-        color0 = rgb0[:]
-        color1 = rgb0[:]
-
-        cdiff0 = [(rgb2[w]-rbg0[w]/ distance0 if distance0 != 0 else 0) for w in range(3)]
-        cdiff1 = [(rgb1[w]-rbg0[w]/ distance1 if distance1 != 0 else 0) for w in range(3)]
-        cdiff2 = [(rgb2[w]-rbg1[w]/ distance2 if distance2 != 0 else 0) for w in range(3)]
+            points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
+                   (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
+                   (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
 
 
-        dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
-        dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
-        dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
-        dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+            points.sort(key = lambda x: x[1])
 
-        while y <= int(points[TOP][1]):
-            if ( not flip and y >= int(points[MID][1])):
-                flip = True
-                color1 = rgb1[:]
-                cdiff1 = cdiff2[:]
+            x0 = points[BOT][0]
+            z0 = points[BOT][2]
+            x1 = points[BOT][0]
+            z1 = points[BOT][2]
+            y = int(points[BOT][1])
 
-                dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
-                dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
-                x1 = points[MID][0]
-                z1 = points[MID][2]
+            distance0 = int(points[TOP][1]) - y * 1.0 + 1
+            distance1 = int(points[MID][1]) - y * 1.0 + 1
+            distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
 
-            #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
-            draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, color0, color1)
-            color0 = [color0[w] + cdiff0[w] for w in range(3)]
-            color1 = [color1[w] + cdiff1[w] for w in range(3)]
+            normal0 = normals[cashjohnny(points[0])][:]
+            normal1 = normals[cashjohnny(points[1])][:]
+            normal2 = normals[cashjohnny(points[2])][:]
 
-            x0+= dx0
-            z0+= dz0
-            x1+= dx1
-            z1+= dz1
-            y+= 1
+            # bingus=2
+            # if normal0[bingus]<0:
+            #     normal0[bingus]=1
+            #
+            # if normal1[bingus]<0:
+            #     normal1[bingus]=1
+            #
+            # if normal2[bingus]<0:
+            #     normal2[bingus]=1
+
+            rgb0 = get_lighting(normal0, view, ambient, light, symbols, reflect )
+            rgb1 = get_lighting(normal1, view, ambient, light, symbols, reflect )
+            rgb2 = get_lighting(normal2, view, ambient, light, symbols, reflect )
+
+            color0 = rgb0[:]
+            color1 = rgb0[:]
+
+            cdiff0 = [((rgb2[w]-rgb0[w])/ distance0 if distance0 != 0 else 0) for w in range(3)]
+            cdiff1 = [((rgb1[w]-rgb0[w])/ distance1 if distance1 != 0 else 0) for w in range(3)]
+            cdiff2 = [((rgb2[w]-rgb1[w])/ distance2 if distance2 != 0 else 0) for w in range(3)]
+            dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
+            dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
+            dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
+            dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+
+            while y <= int(points[TOP][1]):
+
+                if ( not flip and y >= int(points[MID][1])):
+                    flip = True
+                    color1 = rgb1[:]
+                    cdiff1 = cdiff2[:]
+
+                    dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
+                    dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
+                    x1 = points[MID][0]
+                    z1 = points[MID][2]
+
+                #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+
+                draw_scanline_gouraud(int(x0), z0, int(x1), z1, y, screen, zbuffer, color0, color1)
+                color0 = [color0[w] + cdiff0[w] for w in range(3)]
+                color1 = [color1[w] + cdiff1[w] for w in range(3)]
+
+                x0+= dx0
+                z0+= dz0
+                x1+= dx1
+                z1+= dz1
+                y+= 1
 
         i += 3
 
@@ -96,17 +107,126 @@ def draw_scanline_gouraud(x0, z0, x1, z1, y, screen, zbuffer, color0, color1):
     z = z0
     delta_z = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
 
-    cdiff= [(color1[w]-color0[w]/ (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0) for w in range(3)]
+    cdiff= [((color1[w]-color0[w])/ (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0) for w in range(3)]
+
     while x <= x1:
+        for i in range(3):
+            if color0[i]>255:
+                color0[i]=255
+        color0=[int(color0[i]) for i in range(3)]
         plot(screen, zbuffer, color0, x, y, z)
-        color0 += [color0[w] + cdiff[w] for w in range(3)]
+        color0 = [color0[w] + cdiff[w] for w in range(3)]
         x+= 1
         z+= delta_z
 
 
+def phong(polygons, screen, zbuffer, view, ambient, light, symbols, reflect):
+    if len(polygons) < 2:
+        print 'Need at least 3 points to draw'
+        return
 
 
+    BOT = 0
+    TOP = 2
+    MID = 1
 
+    i = 0
+    normals = vertexnormal(polygons)
+    while i < len(polygons):
+        normal = calculate_normal(polygons, i)[:]
+
+        #print normal
+        if normal[2] > 0:
+            flip = False
+
+            points = [ (polygons[i][0], polygons[i][1], polygons[i][2]),
+                   (polygons[i+1][0], polygons[i+1][1], polygons[i+1][2]),
+                   (polygons[i+2][0], polygons[i+2][1], polygons[i+2][2]) ]
+
+
+            points.sort(key = lambda x: x[1])
+
+            x0 = points[BOT][0]
+            z0 = points[BOT][2]
+            x1 = points[BOT][0]
+            z1 = points[BOT][2]
+            y = int(points[BOT][1])
+
+            distance0 = int(points[TOP][1]) - y * 1.0 + 1
+            distance1 = int(points[MID][1]) - y * 1.0 + 1
+            distance2 = int(points[TOP][1]) - int(points[MID][1]) * 1.0 + 1
+
+            normal0 = normals[cashjohnny(points[0])][:]
+            normal1 = normals[cashjohnny(points[1])][:]
+            normal2 = normals[cashjohnny(points[2])][:]
+            
+            n0=normal0[:]
+            n1=normal0[:]
+            # bingus=2
+            # if normal0[bingus]<0:
+            #     normal0[bingus]=1
+            #
+            # if normal1[bingus]<0:
+            #     normal1[bingus]=1
+            #
+            # if normal2[bingus]<0:
+            #     normal2[bingus]=1
+
+            vdiff0 = [((normal2[w]-normal0[w])/ distance0 if distance0 != 0 else 0) for w in range(3)]
+            vdiff1 = [((normal1[w]-normal0[w])/ distance1 if distance1 != 0 else 0) for w in range(3)]
+            vdiff2 = [((normal2[w]-normal1[w])/ distance2 if distance2 != 0 else 0) for w in range(3)]
+            dx0 = (points[TOP][0] - points[BOT][0]) / distance0 if distance0 != 0 else 0
+            dz0 = (points[TOP][2] - points[BOT][2]) / distance0 if distance0 != 0 else 0
+            dx1 = (points[MID][0] - points[BOT][0]) / distance1 if distance1 != 0 else 0
+            dz1 = (points[MID][2] - points[BOT][2]) / distance1 if distance1 != 0 else 0
+
+            while y <= int(points[TOP][1]):
+
+                if ( not flip and y >= int(points[MID][1])):
+                    flip = True
+                    n1 = normal1[:]
+                    vdiff1 = vdiff2[:]
+
+                    dx1 = (points[TOP][0] - points[MID][0]) / distance2 if distance2 != 0 else 0
+                    dz1 = (points[TOP][2] - points[MID][2]) / distance2 if distance2 != 0 else 0
+                    x1 = points[MID][0]
+                    z1 = points[MID][2]
+
+                #draw_line(int(x0), y, z0, int(x1), y, z1, screen, zbuffer, color)
+
+                draw_scanline_phong(int(x0), z0, int(x1), z1, y, screen, zbuffer, n0, n1, view, ambient, light, symbols, reflect)
+                n0 = [n0[w] + vdiff0[w] for w in range(3)]
+                n1 = [n1[w] + vdiff1[w] for w in range(3)]
+
+                x0+= dx0
+                z0+= dz0
+                x1+= dx1
+                z1+= dz1
+                y+= 1
+
+        i += 3
+
+def draw_scanline_phong(x0, z0, x1, z1, y, screen, zbuffer, n0, n1, view, ambient, light, symbols, reflect):
+    if x0 > x1:
+        tx = x0
+        tz = z0
+        x0 = x1
+        z0 = z1
+        x1 = tx
+        z1 = tz
+
+    x = x0
+    z = z0
+    delta_z = (z1 - z0) / (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0
+
+    vdiff= [((n1[w]-n0[w])/ (x1 - x0 + 1) if (x1 - x0 + 1) != 0 else 0) for w in range(3)]
+
+    while x <= x1:
+        color=get_lighting(n0, view, ambient, light, symbols, reflect )
+        plot(screen, zbuffer, color , x, y, z)
+        n0 = [n0[w] + vdiff[w] for w in range(3)]
+        x+= 1
+        z+= delta_z
 
 def draw_scanline(x0, z0, x1, z1, y, screen, zbuffer, color):
     if x0 > x1:

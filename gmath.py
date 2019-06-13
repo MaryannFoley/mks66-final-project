@@ -52,10 +52,10 @@ def vertexnormal(polygons):
         else:
             faces[cj2] = n[:]
         i+=3
-
+    #print(faces)
     for key in faces:
-        faces[key] = normalize(faces[key])
-
+        faces[key] = modNormalize(faces[key])
+    #print(faces)
     return faces
 
 
@@ -64,6 +64,7 @@ def get_lighting(normal, view, ambient, light, symbols, reflect ):
 
     n = normal[:]
     normalize(n)
+    
     normalize(light[LOCATION])
     normalize(view)
     r = symbols[reflect][1]
@@ -129,6 +130,15 @@ def normalize(vector):
                            vector[2] * vector[2])
     for i in range(3):
         vector[i] = vector[i] / magnitude
+
+def modNormalize(vector):
+    magnitude = math.sqrt( vector[0] * vector[0] +
+                           vector[1] * vector[1] +
+                           vector[2] * vector[2])
+    ret=[0,0,0]
+    for i in range(3):
+        ret[i] = vector[i] / magnitude
+    return ret
 
 #Return the dot porduct of a . b
 def dot_product(a, b):
