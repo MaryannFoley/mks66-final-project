@@ -64,7 +64,7 @@ def get_lighting(normal, view, ambient, light, symbols, reflect ):
 
     n = normal[:]
     normalize(n)
-    
+
     normalize(light[LOCATION])
     normalize(view)
     r = symbols[reflect][1]
@@ -128,14 +128,21 @@ def normalize(vector):
     magnitude = math.sqrt( vector[0] * vector[0] +
                            vector[1] * vector[1] +
                            vector[2] * vector[2])
+
     for i in range(3):
-        vector[i] = vector[i] / magnitude
+        if magnitude == 0:
+            vector[i] = 0
+        else:
+            vector[i] = vector[i] / magnitude
 
 def modNormalize(vector):
     magnitude = math.sqrt( vector[0] * vector[0] +
                            vector[1] * vector[1] +
                            vector[2] * vector[2])
+
     ret=[0,0,0]
+    if magnitude == 0:
+        return ret
     for i in range(3):
         ret[i] = vector[i] / magnitude
     return ret
