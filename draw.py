@@ -300,7 +300,34 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
         z1+= dz1
         y+= 1
 
+def add_mesh_obj( polygons, objectlines ):
+    lines = []
+    for line in objectlines:
+        lines.append(line.split())
+    #parse lines for points
+    vertices = []
+    for line in lines:
+        if line[0] == "v":
+            v.append([float(p) for p in line[1:]])
 
+    faces=[]
+    for line in lines:
+        if line[0] == "f":
+            if len(line) == 4:
+                #one triangle
+                v0=vertices[int(line[1])-1]
+                v1=vertices[int(line[2])-1]
+                v2=vertices[int(line[3])-1]
+
+                add_polygon(polygons,v0[0],v0[1],v0[2],v1[0],v1[1],v1[2],v2[0],v2[1],v2[2])
+            if len(line) == 5:
+                v0=vertices[int(line[1])-1]
+                v1=vertices[int(line[2])-1]
+                v2=vertices[int(line[3])-1]
+                v3=vertices[int(line[4])-1]
+
+                add_polygon(polygons,v0[0],v0[1],v0[2],v1[0],v1[1],v1[2],v2[0],v2[1],v2[2])
+                add_polygon(polygons,v1[0],v1[1],v1[2],v2[0],v2[1],v2[2],v3[0],v3[1],v3[2])
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0)
