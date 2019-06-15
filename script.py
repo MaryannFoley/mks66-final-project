@@ -194,7 +194,8 @@ def run(filename):
                 file=command["args"][0]
                 file=open(file+".obj","r")
                 objfile=file.readlines()
-                add_mesh_obj(tmp,objfile)
+                ## if you want to "clean up" the file, add the name of what you want to name the new file as a 3rd parameter
+                add_mesh_obj(tmp,objfile) 
                 matrix_mult( stack[-1], tmp )
                 phong(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
                 file.close()

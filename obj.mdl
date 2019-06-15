@@ -2,6 +2,6 @@ push
 move 250 250 0
 rotate y 20
 rotate x -20
-mesh :car
+mesh :car2
 display
 save dec.png

@@ -300,8 +300,10 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
         z1+= dz1
         y+= 1
 
-def add_mesh_obj( polygons, objectlines ):
+def add_mesh_obj( polygons, objectlines, newfile=False ):
     lines = []
+    if newfile:
+        retfile=""
     for line in objectlines:
         if len(line.split()) != 0:
             lines.append(line.split())
@@ -310,6 +312,9 @@ def add_mesh_obj( polygons, objectlines ):
     for line in lines:
         if line[0] == "v":
             vertices.append([float(p) for p in line[1:]])
+            if newfile:
+                retfile += " ".join(line)
+                retfile += "\n"
 
     faces=[]
     for line in lines:
@@ -318,18 +323,21 @@ def add_mesh_obj( polygons, objectlines ):
                 #print line
                 if "//" in line[1]:
                     #print line
-                    line1=[0]
+                    line1=["f"]
                     line1.append(line[1].split("//")[1])
                     line1.append(line[2].split("//")[1])
                     line1.append(line[3].split("//")[1])
                 if "/" in line[1]:
                     #print line
-                    line1=[0]
+                    line1=["f"]
                     line1.append(line[1].split("/")[0])
                     line1.append(line[2].split("/")[0])
                     line1.append(line[3].split("/")[0])
                 else:
                     line1=line[:]
+                if newfile:
+                    retfile += " ".join(line1)
+                    retfile += "\n"
                 #one triangle
                 v0=vertices[int(line1[1])-1]
                 v1=vertices[int(line1[2])-1]
@@ -339,16 +347,19 @@ def add_mesh_obj( polygons, objectlines ):
             if len(line) == 5:
                 if "//" in line[1]:
                     #print line
-                    line1=[0]+[p.split("//")[1] for p in line[1:]]
+                    line1=["f"]+[p.split("//")[1] for p in line[1:]]
                 if "/" in line[1]:
                     #print line
-                    line1=[0]
+                    line1=["f"]
                     line1.append(line[1].split("/")[0])
                     line1.append(line[2].split("/")[0])
                     line1.append(line[3].split("/")[0])
                     line1.append(line[4].split("/")[0])
                 else:
                     line1=line[:]
+                if newfile:
+                    retfile += " ".join(line1)
+                    retfile += "\n"
                 v0=vertices[int(line1[1])-1]
                 v1=vertices[int(line1[2])-1]
                 v2=vertices[int(line1[3])-1]
@@ -356,6 +367,10 @@ def add_mesh_obj( polygons, objectlines ):
 
                 add_polygon(polygons,v0[0]*3,v0[1]*3,v0[2]*3,v1[0]*3,v1[1]*3,v1[2]*3,v2[0]*3,v2[1]*3,v2[2]*3)
                 add_polygon(polygons,v1[0]*3,v1[1]*3,v1[2]*3,v2[0]*3,v2[1]*3,v2[2]*3,v3[0]*3,v3[1]*3,v3[2]*3)
+    if newfile:
+        f=open(newfile+".obj","w")
+        f.write(retfile)
+        f.close()
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0)
