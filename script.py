@@ -118,7 +118,7 @@ def run(filename):
                50,
                50]
     light = [[0.5,
-              0.75,
+              0.6,
               1],
              [255,
               255,
@@ -192,12 +192,12 @@ def run(filename):
                 reflect = '.white'
             elif c == 'mesh':
                 file=command["args"][0]
-                objfile=open(file+".obj","r")
-                objfile=objfile.readlines()
+                file=open(file+".obj","r")
+                objfile=file.readlines()
                 add_mesh_obj(tmp,objfile)
-                objfile.close()
                 matrix_mult( stack[-1], tmp )
                 phong(tmp, screen, zbuffer, view, ambient, light, symbols, reflect)
+                file.close()
                 tmp = []
                 reflect = '.white'
 

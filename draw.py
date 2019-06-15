@@ -303,31 +303,59 @@ def scanline_convert(polygons, i, screen, zbuffer, color):
 def add_mesh_obj( polygons, objectlines ):
     lines = []
     for line in objectlines:
-        lines.append(line.split())
+        if len(line.split()) != 0:
+            lines.append(line.split())
     #parse lines for points
     vertices = []
     for line in lines:
         if line[0] == "v":
-            v.append([float(p) for p in line[1:]])
+            vertices.append([float(p) for p in line[1:]])
 
     faces=[]
     for line in lines:
         if line[0] == "f":
             if len(line) == 4:
+                #print line
+                if "//" in line[1]:
+                    #print line
+                    line1=[0]
+                    line1.append(line[1].split("//")[1])
+                    line1.append(line[2].split("//")[1])
+                    line1.append(line[3].split("//")[1])
+                if "/" in line[1]:
+                    #print line
+                    line1=[0]
+                    line1.append(line[1].split("/")[0])
+                    line1.append(line[2].split("/")[0])
+                    line1.append(line[3].split("/")[0])
+                else:
+                    line1=line[:]
                 #one triangle
-                v0=vertices[int(line[1])-1]
-                v1=vertices[int(line[2])-1]
-                v2=vertices[int(line[3])-1]
+                v0=vertices[int(line1[1])-1]
+                v1=vertices[int(line1[2])-1]
+                v2=vertices[int(line1[3])-1]
 
-                add_polygon(polygons,v0[0],v0[1],v0[2],v1[0],v1[1],v1[2],v2[0],v2[1],v2[2])
+                add_polygon(polygons,v0[0]*3,v0[1]*3,v0[2]*3,v1[0]*3,v1[1]*3,v1[2]*3,v2[0]*3,v2[1]*3,v2[2]*3)
             if len(line) == 5:
-                v0=vertices[int(line[1])-1]
-                v1=vertices[int(line[2])-1]
-                v2=vertices[int(line[3])-1]
-                v3=vertices[int(line[4])-1]
+                if "//" in line[1]:
+                    #print line
+                    line1=[0]+[p.split("//")[1] for p in line[1:]]
+                if "/" in line[1]:
+                    #print line
+                    line1=[0]
+                    line1.append(line[1].split("/")[0])
+                    line1.append(line[2].split("/")[0])
+                    line1.append(line[3].split("/")[0])
+                    line1.append(line[4].split("/")[0])
+                else:
+                    line1=line[:]
+                v0=vertices[int(line1[1])-1]
+                v1=vertices[int(line1[2])-1]
+                v2=vertices[int(line1[3])-1]
+                v3=vertices[int(line1[4])-1]
 
-                add_polygon(polygons,v0[0],v0[1],v0[2],v1[0],v1[1],v1[2],v2[0],v2[1],v2[2])
-                add_polygon(polygons,v1[0],v1[1],v1[2],v2[0],v2[1],v2[2],v3[0],v3[1],v3[2])
+                add_polygon(polygons,v0[0]*3,v0[1]*3,v0[2]*3,v1[0]*3,v1[1]*3,v1[2]*3,v2[0]*3,v2[1]*3,v2[2]*3)
+                add_polygon(polygons,v1[0]*3,v1[1]*3,v1[2]*3,v2[0]*3,v2[1]*3,v2[2]*3,v3[0]*3,v3[1]*3,v3[2]*3)
 
 def add_polygon( polygons, x0, y0, z0, x1, y1, z1, x2, y2, z2 ):
     add_point(polygons, x0, y0, z0)
