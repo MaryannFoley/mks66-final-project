@@ -117,12 +117,12 @@ def run(filename):
     ambient = [50,
                50,
                50]
-    light = [[0.5,
+    light = [[0.1,
               0.6,
               1],
              [255,
-              255,
-              255]]
+              0,
+              100]]
 
     color = [0, 0, 0]
     symbols['.white'] = ['constants',
