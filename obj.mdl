@@ -1,4 +1,4 @@
-frames 10
+frames 100
 basename carCrash_
 
 push
@@ -7,7 +7,7 @@ rotate y 20
 rotate x -90
 
 push
-move 50 50 0 movy
+move 400 0 0 movy
 scale 2 2 2 bigy
 mesh :car2
 
@@ -15,5 +15,5 @@ display
 save dec.png
 
 
-vary movy 0 9 0 1
-vary bigy 0 9 0 1
+vary movy 0 99 0 1
+vary bigy 0 99 0 1

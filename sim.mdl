@@ -1,0 +1,9 @@
+push
+move 100 100 0
+rotate y 20
+rotate x -90
+
+mesh :car2
+
+display
+save image.png
